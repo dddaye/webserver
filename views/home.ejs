@@ -1,3 +1,8 @@
+<style>
+    #div_books img {
+        cursor : pointer;
+    }
+</style>
 <div class="row my-5">
     <div class="col">
         <div class="row mb-2 justify-content-end">
@@ -6,7 +11,6 @@
                     <input name="query" class="form-control" value="자바">
                     <button class="btn btn-primary">검색</button>
                 </div>
-
             </form>
         </div>
         <!--검색 결과 출력-->
@@ -24,23 +28,45 @@
 <!--도서정보 출력 템플릿-->
 <script type="x-handlebars-template" id="temp_books">
     {{#each documents}}
-        <div class="col-6 col-md-4 col-lg-2 mb-2">
-            <div class="card">
-                <div class="card-body">
-                    <img src="{{thumbnail}}" width="90%">
-                    <div class="ellipsis text-center">{{title}}</div>
-                </div>
-                <div class="card-footer">
-                    {{price}}
-                </div>        
-            </div>    
-        </div>
+    <div class="col-6 col-md-4 col-lg-2 mb-2">
+        <div class="card">
+            <div class="card-body">
+                <img src="{{thumbnail}}" width="90%" index="{{@index}}">
+                <div class="ellipsis text-center">{{title}}</div>
+            </div>
+            <div class="card-footer">
+                {{fmtPrice price}}
+            </div>        
+        </div>    
+    </div>
+    <%-include('books/modal.ejs')%> 
     {{/each}}
+</script>
+<!--Handlebars 함수-->
+<script>
+    Handlebars.registerHelper("chkImage", function(image){
+        if(image){
+            return image;
+        }else{
+            return "https://via.placeholder.com/120x170";
+        }
+    });
+
+    Handlebars.registerHelper("fmtPrice", function(price){
+        if(price) return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '원';
+    });
 </script>
 
 <script>
     let query=$(frm.query).val();
     let page=1;
+    
+    // 이미지를 클릭했을 때
+    $("#div_books").on("click", "img", function(){
+        let index=$(this).attr("index");
+        //alert(index);
+        $("#modal" + index).modal("show");
+    });
 
     $(frm).on("submit", function(e){
         e.preventDefault();
@@ -73,7 +99,7 @@
                 let temp=Handlebars.compile($("#temp_books").html());
                 $("#div_books").html(temp(result));
 
-                let last=Math.ceil(result.meta.pageable_count/5)
+                let last=Math.ceil(result.meta.pageable_count/5);
                 $("#span_page").html(page + "/" + last);
 
                 if(page==1) $("#prev").attr("disabled", true);
