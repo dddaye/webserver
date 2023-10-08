@@ -1,0 +1,58 @@
+<style>
+    form span {
+        width: 100px;
+    }
+</style>
+<div class="row my-5 justify-content-center">
+    <div class="col-6">
+        <h1 class="text-center">LOGIN</h1>
+        <form name='frm' class="card p-3">
+            <div class="input-group mb-3">
+                <span class="input-group-text">e-mail</span>
+                <input name="email" class="form-control" value="cute@test.com">
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text">password</span>
+                <input name='password' class="form-control" type="password" value="12341234">
+            </div>
+            <button class="btn btn-primary w-100">로그인</button>
+        </form>
+        <div class="text-end mt-2">
+            <a href="/users/join">회원가입</a>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import {app} from '/javascripts/firebaseInit.js';
+    import { getAuth, signInWithEmailAndPassword } 
+        from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+    const auth=getAuth(app);
+    
+    $(frm).on("submit", function(e){
+        e.preventDefault();
+        const email=$(frm.email).val();
+        const password=$(frm.password).val();
+        //유효성체크
+        if(email==""){
+            alert("이메일을 입력하세요!");
+            $(frm.email).focus();
+        }else if(password==""){
+            alert("비밀번호를 입력하세요!");
+            $(frm.password).focus();      
+        }else{
+            //로그인 체크
+            signInWithEmailAndPassword(auth, email, password).then(success=> {
+                // 성공한 경우
+                console.log(success);
+                sessionStorage.setItem("email", email);
+                sessionStorage.setItem("uid", success.user.uid);
+                alert("로그인에 성공하셨습니다.");
+                location.href="/";
+            }).catch(error=> {
+                alert(error.message);
+            });
+
+        }
+    });
+</script>

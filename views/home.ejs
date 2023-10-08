@@ -2,6 +2,10 @@
     #div_books img {
         cursor : pointer;
     }
+    #div_books .bi-basket{
+        cursor: pointer;
+        color: green;
+    }
 </style>
 <div class="row my-5">
     <div class="col">
@@ -31,11 +35,12 @@
     <div class="col-6 col-md-4 col-lg-2 mb-2">
         <div class="card">
             <div class="card-body">
-                <img src="{{thumbnail}}" width="90%" index="{{@index}}">
+                <img src="{{chkImage thumbnail}}" width="90%" index="{{@index}}">
                 <div class="ellipsis text-center">{{title}}</div>
             </div>
             <div class="card-footer">
                 {{fmtPrice price}}
+                <i class="bi bi-basket float-end" book="{{book @this}}"></i>
             </div>        
         </div>    
     </div>
@@ -48,18 +53,48 @@
         if(image){
             return image;
         }else{
-            return "https://via.placeholder.com/120x170";
+            return "https://via.placeholder.com/120x170"
         }
     });
 
     Handlebars.registerHelper("fmtPrice", function(price){
         if(price) return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '원';
     });
+    Handlebars.registerHelper("book", function(book){
+        return JSON.stringify(book);
+    });
 </script>
 
-<script>
+<script type="module">
+    import {app} from '/javascripts/firebaseInit.js';
+    import { getDatabase, ref, set, get  } 
+    from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
+    const db=getDatabase(app);
+
+
     let query=$(frm.query).val();
     let page=1;
+
+    //장바구니 아이콘을 클릭했을 때
+    $("#div_books").on("click", ".bi-basket", async function(){
+        if(!sessionStorage.getItem("email")){
+            location.href="/users/login";
+        }else{
+            //장바구니에 상품 정보 저장
+            const book=JSON.parse($(this).attr("book"));
+            console.log(book)
+            const ref_book= `cart/${sessionStorage.getItem("uid")}/${book.isbn}`;
+            //장바구니에 도서가 있는지 체크
+            const snapshot = await get(ref(db, ref_book));
+            if(snapshot.val()){
+                alert("이미 장바구니에 추가 된 도서입니다.");
+            }else{
+                if(!confirm("장바구니에 저장하시겠습니까?")) return;
+                set(ref(db, ref_book), book);
+                alert("장바구니에 추가되었습니다.");
+            }
+        }    
+    });
     
     // 이미지를 클릭했을 때
     $("#div_books").on("click", "img", function(){
