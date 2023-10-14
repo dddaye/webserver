@@ -12,12 +12,15 @@
           <li class="nav-item">
             <a class="nav-link active" aria-current="page" href="/locals">지역검색</a>
           </li>
+          <li class="nav-item" id="cart" style="display:none;">
+            <a class="nav-link active" aria-current="page" href="/books/cart">장바구니</a>
+          </li>
         </ul>
-        <ul class="navbar-nav d-flex">
+        <ul class="navbar-nav d-flex"> <!--d-flex 오른쪽 메뉴-->
             <li class="nav-item" id="login">
               <a class="nav-link active" aria-current="page" href="/users/login">LOGIN</a>
             </li>
-            <li class="nav-item" id="email" style="display:none;">
+            <li class="nav-item" id="email" style="display:none;"> <!--style="display:none 처음에 안보이게 하는거 -->
               <a class="nav-link active" aria-current="page" href="/users/mypage">email</a>
             </li>
             <li class="nav-item" id="logout" style="display:none;">
@@ -28,16 +31,16 @@
     </div>
   </nav>
   <script>
-    if(sessionStorage.getItem("email")){
-      $("#login, #email, #logout").toggle();
-      $("#email a").html(sessionStorage.getItem("email"));
+    if(sessionStorage.getItem("email")){ //sessionStorage로 가져오는거임 로그인 정보를
+      $("#login, #email, #logout, #cart").toggle(); //#login, #email, #logout, #cart를 토글해라
+      $("#email a").html(sessionStorage.getItem("email")); // a태그에 email을 넣어주는거임 그래서 로그인하면 email이 보이는거
     }
 
     $("#logout").on("click", "a", function(e){
-      e.preventDefault();
+      e.preventDefault(); //a태그 따라서 가는거 멈춰! 일단 이동하지마!
       if(confirm("정말 로그아웃 하실껀가요?")) {
-        sessionStorage.clear();
-        location.href="/";
+        sessionStorage.clear(); //sessionStorage 값을 클리어해줌 로그아웃이니까
+        location.href="/"; // 루트로 이동 후 다시 토글되서 login, #email, #logout 보이는건 안보이게 안보이는건 보이게
       }
     })
   </script>

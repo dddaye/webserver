@@ -7,7 +7,7 @@
         color: green;
     }
 </style>
-<div class="row my-5">
+<div class="row my-5"> 
     <div class="col">
         <div class="row mb-2 justify-content-end">
             <form name="frm" class="col-6 col-m-4 col-lg-3">
@@ -18,7 +18,7 @@
             </form>
         </div>
         <!--검색 결과 출력-->
-        <div id="div_books" class="row"></div>
+        <div id="div_books" class="row"></div> <!-- 도서정보 출력 템플릿은 div_books에 들어가서 검색결과 출력에 보여주는거임-->
 
         <!--페이지 이동-->
         <div class="text-center">
@@ -30,6 +30,9 @@
     </div>
 </div>
 <!--도서정보 출력 템플릿-->
+<!-- @index 몇번째 있는지 알려주는거  -->
+<!-- @this 오브젝트를 스트링으로 바꿔줘야함 / book이라는 함수를 만들었음 book @this -->
+<!-- class= / book= <-- 어트리뷰트라고함 / 장바구니 아이콘을 누르면 book 어트리뷰트(속성)에 저장 -->
 <script type="x-handlebars-template" id="temp_books">
     {{#each documents}}
     <div class="col-6 col-md-4 col-lg-2 mb-2">
@@ -40,7 +43,7 @@
             </div>
             <div class="card-footer">
                 {{fmtPrice price}}
-                <i class="bi bi-basket float-end" book="{{book @this}}"></i>
+                <i class="cart bi bi-basket float-end" book="{{book @this}}"></i>
             </div>        
         </div>    
     </div>
@@ -60,37 +63,42 @@
     Handlebars.registerHelper("fmtPrice", function(price){
         if(price) return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '원';
     });
-    Handlebars.registerHelper("book", function(book){
-        return JSON.stringify(book);
+    Handlebars.registerHelper("book", function(book){ //book 함수 @this에 쓰려고 만듬 / @this = function(book)
+        return JSON.stringify(book); // JOSN 오브젝트를 스트링으로 바꿔줘라
     });
 </script>
 
-<script type="module">
+<script type="module"> //type="module" 쓰는 이유
     import {app} from '/javascripts/firebaseInit.js';
-    import { getDatabase, ref, set, get  } 
+    import { getDatabase, ref, set, get  } // getDatabase=데이터베이스가져와 / ref=어디에 쓸건지 주소 / set=쓰기 / get=장바구니에 이미 있는지 확인하려고 get으로 읽음
     from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
-    const db=getDatabase(app);
+    const db=getDatabase(app); //데이터베이스를 db에 가져와 설정파일이 app에 있으니까 ()안에 app
 
 
     let query=$(frm.query).val();
     let page=1;
 
     //장바구니 아이콘을 클릭했을 때
-    $("#div_books").on("click", ".bi-basket", async function(){
-        if(!sessionStorage.getItem("email")){
-            location.href="/users/login";
+    $("#div_books").on("click", ".cart", async function(){
+        if(!sessionStorage.getItem("email")){ // sessionStorage에 email이 없으면
+            alert("로그인이 필요합니다.");
+            location.href="/users/login"; // 로그인 창으로 가
         }else{
             //장바구니에 상품 정보 저장
-            const book=JSON.parse($(this).attr("book"));
-            console.log(book)
+            const book=JSON.parse($(this).attr("book")); //여기서 this는 cart임 / 스트링을 오브젝트로 바꿀 때 JSON.parse()
+            console.log(book);
             const ref_book= `cart/${sessionStorage.getItem("uid")}/${book.isbn}`;
+            // const ref_book= ref(db, `cart/${sessionStorage.getItem("uid")}/${book.isbn}`);
+
             //장바구니에 도서가 있는지 체크
-            const snapshot = await get(ref(db, ref_book));
+            const snapshot = await get(ref(db, ref_book)); //성공하면 snapshot에 값이 들어감 / await 가져올떄까지 기다려 / 어디에 있는지 꺼내올 때(get) 레퍼런스(ref)만 지정해주면 됨
+            // const snapshot = await get(ref_book);
             if(snapshot.val()){
                 alert("이미 장바구니에 추가 된 도서입니다.");
             }else{
-                if(!confirm("장바구니에 저장하시겠습니까?")) return;
+                if(!confirm("장바구니에 저장하시겠습니까?")) return; //!붙어서 안넣을때 리턴임
                 set(ref(db, ref_book), book);
+                // set(ref_book, book);
                 alert("장바구니에 추가되었습니다.");
             }
         }    

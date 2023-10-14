@@ -18,5 +18,5 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-export const app = initializeApp(firebaseConfig);
+export const app = initializeApp(firebaseConfig); //app을 외부에서 사용할거여서 export 사용
 const analytics = getAnalytics(app);

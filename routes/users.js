@@ -9,7 +9,7 @@ router.get('/', function(req, res, next) {
 
 // 로그인 페이지
 router.get('/login', function(req, res){
-  res.render('index', {title:'로그인', pageName:'users/login.ejs'})
+  res.render('index', {title:'로그인', pageName:'users/login.ejs'}) //index를 통해 페이지 출력
 });
 
 
