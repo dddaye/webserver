@@ -15,6 +15,9 @@
           <li class="nav-item" id="cart" style="display:none;">
             <a class="nav-link active" aria-current="page" href="/books/cart">장바구니</a>
           </li>
+          <li class="nav-item" id="favorite" style="display:none;">
+            <a class="nav-link active" aria-current="page" href="/locals/favorite">즐겨찾기</a>
+          </li>
         </ul>
         <ul class="navbar-nav d-flex"> <!--d-flex 오른쪽 메뉴-->
             <li class="nav-item" id="login">
@@ -32,7 +35,7 @@
   </nav>
   <script>
     if(sessionStorage.getItem("email")){ //sessionStorage로 가져오는거임 로그인 정보를
-      $("#login, #email, #logout, #cart").toggle(); //#login, #email, #logout, #cart를 토글해라
+      $("#login, #email, #logout, #cart, #favorite").toggle(); //#login, #email, #logout, #cart를 토글해라
       $("#email a").html(sessionStorage.getItem("email")); // a태그에 email을 넣어주는거임 그래서 로그인하면 email이 보이는거
     }
 
