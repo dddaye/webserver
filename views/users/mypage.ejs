@@ -16,6 +16,9 @@
             <div class="text-center my-5">
                 <img id="photo" src="https://via.placeholder.com/200x200"/>
                 <input id="file" type="file">
+                <div>
+                    <button id="btn-photo" class="btn btn-primary px-5 mt-2">이미지 저장</button>
+                </div>
             </div>
             <form name="frm" class="card p-3">
                 <div class="input-group mb-2">
@@ -43,9 +46,12 @@
 <script type="module">
     import {app} from "/javascripts/firebaseInit.js"
     import { getFirestore, setDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
-    const db=getFirestore(app);
-    const uid=sessionStorage.getItem("uid");
-    const email=sessionStorage.getItem("email");
+    import { getStorage,uploadBytes,ref,getDownloadURL } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-storage.js";
+
+    const db = getFirestore(app);
+    const uid = sessionStorage.getItem("uid");
+    const email = sessionStorage.getItem("email");
+    const storage = getStorage(app);
 
     let user;
     $(window).on("load", async function(){ //window 페이지가 열릴 때
@@ -55,11 +61,28 @@
             $(frm.name).val(user.name);
             $(frm.phone).val(user.phone);
             $(frm.address).val(user.address);
+            const photo = user.photo ? user.photo : "http://via.placeholder.com/200x200";
+            $("#photo").attr("src", photo);
         }
         //console.log(snapshot.data());
     });
 
-    $("#file").on("change", function(e){
+    // 이미지 저장버튼 눌렀을 때 
+    $("#btn-photo").on("click", async function(){
+        if($("#file").val()==""){
+            alert("저장할 사진을 선택하세요.");
+        }else{
+            if(confirm("선택한 이미지를 저장하실래요?")){
+                //console.log(".......................", user)
+                const snapshot=await uploadBytes(ref(storage, `/photo/${Date.now()}.jpg`), $("#file")[0].files[0]); //업로드해서 스냅샷 변수에 넣어주기 ([0].files[0] 내가 선택한 파일만 업로드됨)
+                const url=await getDownloadURL(snapshot.ref);
+                await setDoc(doc(db,`users/${uid}`), {...user, photo:url})
+                alert("이미지가 저장되었습니다.")
+            }
+        }
+    })
+
+    $("#file").on("change", function(e){ 
         $("#photo").attr("src", URL.createObjectURL(e.target.files[0]))
     });
 
@@ -87,7 +110,7 @@
             return;
         }
         if(confirm("정보를 저장하시겠습니까?")){
-            await setDoc(doc(db, `users/${uid}`),{
+            await setDoc(doc(db, `users/${uid}`),{ //db는 파이어스토어를 가리킴
                 email:email,
                 name:name,
                 phone:phone,
