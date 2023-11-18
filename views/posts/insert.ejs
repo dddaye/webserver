@@ -1,15 +1,14 @@
 <div class="my-5">
     <h1 class="text-center mb-5">글쓰기</h1>
     <form name="frm">
-        <input name="title" placeholder="제목을 입력하세요." class="form-control mb-5">
-        <textarea name="body" rows="10" class="form-control" placeholder="내용을 입력하세요."></textarea>
+        <input name="title" placeholder="제목을 입력하세요." class="form-control mb-2">
+        <textarea name="body" placeholder="내용을 입력하세요." rows="10" class="form-control"></textarea>
         <div class="text-center my-3">
-            <button class="btn btn-primary px-5">등록</button>
-            <button class="btn btn-secondary px-5" type="reset">취소</button>
+            <button type="submit" class="btn btn-primary px-5">등록</button>
+            <button type="reset" class="btn btn-secondary px-5">취소</button>
         </div>
     </form>
 </div>
-
 
 <script type="module">
     import { app } from "/javascripts/firebaseInit.js";
@@ -21,25 +20,20 @@
         e.preventDefault();
         const title=$(frm.title).val();
         const body=$(frm.body).val();
-        if(title==""){
-            alert("제목을 입력해주세요.");
+        if(title =="" || body==""){
+            alert("제목과 내용을 입력하세요.")
             $(frm.title).focus();
-            return;
-        }
-        if(body==""){
-            alert("내용을 입력해주세요.")
-            $(frm.body).focus();
-            return;
-        }
-        if(confirm("게시글을 등록하시겠습니까?")){
-            //게시글 등록
-            const email=sessionStorage.getItem("email");
-            const date=moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
-            const data={title, body, email, date}
-            //console.log(data)
-            await addDoc(collection(db, "posts"), data); //addDoc하면 이름이 자동으로 생성
-            alert("게시글이 등록되었습니다.")
-            location.href="/posts";
+        } else{
+            if(confirm("등록하실래요?")){
+                //게시글 등록
+                const email=sessionStorage.getItem("email");
+                const date=moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+                //console.log(title, body, email, date);
+
+                await addDoc(collection(db, "posts"), {email, date, title, body});
+                alert("게시글 등록 완료!")
+                location.href="/posts"
+            }
         }
     })
 </script>
